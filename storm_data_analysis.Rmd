@@ -1,7 +1,7 @@
 ---
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ## Reproducible Research Course Project 2 - Storm Data Analysis  
@@ -63,11 +63,11 @@ injur_evtype <- arrange(injur_evtype, desc(INJURIES))
 
 ```
 
-Step 3: Transform Event-Types into factor-variable & make barplots for the top 3 of most hazard weather events:
+Step 3: Transform Event-Types into factor-variable & make barplots for the top 10 of most hazard weather events:
 
 ```{r}
-fatal_evtype <- fatal_evtype[1:3,]
-injur_evtype <- injur_evtype[1:3,]
+fatal_evtype <- fatal_evtype[1:10,]
+injur_evtype <- injur_evtype[1:10,]
 fatal_evtype <- transform(fatal_evtype, EVTYPE   = factor(EVTYPE))
 injur_evtype <- transform(injur_evtype, EVTYPE   = factor(EVTYPE))
 ```
@@ -75,10 +75,19 @@ injur_evtype <- transform(injur_evtype, EVTYPE   = factor(EVTYPE))
 ### Results I:
 
 ```{r}
-barplot(FATALITIES ~ EVTYPE, fatal_evtype, main="Deaths vs. Weather-Events", 
-         xlab = "", ylab="Total Deaths", cex.lab=1, cex.main=1, col="wheat")
-barplot(INJURIES ~ EVTYPE, injur_evtype, main="Injuries vs. Weather-Events", 
-         xlab = "", ylab="Total Injuries", cex.lab=1, cex.main=1, col="wheat")
+
+ggplot(fatal_evtype, aes(x=reorder(EVTYPE,-FATALITIES), y=FATALITIES)) + 
+    geom_bar(fill=rgb(0.1,0.4,0.5,0.7), stat = "identity") +
+    theme(axis.text.x=element_text(angle=45,hjust=0.5,vjust=0.5)) +
+    labs(x = "", y = "Total Deaths") +
+    labs(title = "Cumulative Deaths vs. Weather-Events") 
+
+
+ggplot(injur_evtype, aes(x=reorder(EVTYPE,-INJURIES), y=INJURIES)) + 
+    geom_bar(fill=rgb(0.1,0.4,0.5,0.7), stat = "identity") +
+    theme(axis.text.x=element_text(angle=45,hjust=0.5,vjust=0.5)) +
+    labs(x = "", y = "Total Injuries") +
+    labs(title = "Cummulative Injuries vs. Weather-Events") 
 ```
 
 ### Data Processing II
@@ -96,8 +105,7 @@ storm <- mutate(storm, PROPDMG = PROPDMG * PROPDMGEXP)
 storm <- select(storm, -PROPDMGEXP)
 ```
 
-Step 2: Sum the property damage per event type & order the result to ﬁnd the top 3 most costly
-events.
+Step 2: Sum the property damage per event type & order the result to ﬁnd the top 10 most costly events.
 
 ```{r}
 propdmg_evtype <- aggregate(storm$PROPDMG, by=list(storm$EVTYPE), sum, na.rm = TRUE)
@@ -108,17 +116,19 @@ propdmg_evtype <- arrange(propdmg_evtype, desc(PROPDMG))
 Step 3: Transform Event-Types into factor-variable & make barplot
 
 ```{r}
-propdmg_evtype <- propdmg_evtype[1:3,]
+propdmg_evtype <- propdmg_evtype[1:10,]
 propdmg_evtype <- transform(propdmg_evtype, EVTYPE = factor(EVTYPE))
 ```
 
 ### Results II:
 
 ```{r}
-barplot(PROPDMG/1e9 ~ EVTYPE, propdmg_evtype, 
-        main="Cumulative Property Damage vs. Weather-Events", 
-        xlab = "", ylab="Property Damage in Billion Dollars", cex.lab=1, 
-        cex.main=1,   col="wheat")
+
+ggplot(propdmg_evtype, aes(x=reorder(EVTYPE,-PROPDMG), y=PROPDMG/1e9)) + 
+    geom_bar(fill=rgb(0.1,0.4,0.5,0.7), stat = "identity") +
+    theme(axis.text.x=element_text(angle=45,hjust=0.5,vjust=0.5)) +
+    labs(x = "", y = "Property Damage in Billion Dollars") +
+    labs(title = "Cumulative Property Damage vs. Weather-Events") 
 ```
 
 ### Conclusion
